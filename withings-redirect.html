@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Weiterleitung zum Trainingstool</title>
+<style>body{font:16px/1.5 system-ui,sans-serif;max-width:32rem;margin:15vh auto;padding:0 16px;color:#1d2321}</style>
+</head>
+<body>
+<p id="msg">Weiterleitung zum Trainingstool …</p>
+<script>
+// Withings verlangt eine öffentliche HTTPS-Callback-URL. Diese Seite liegt öffentlich
+// (z. B. GitHub Pages) und gibt Code und state sofort an das Tool im Heimnetz weiter.
+// Die Adresse des Tools steckt im state (Teil nach dem Punkt, base64url).
+// Der Code allein ist wertlos: Nur das Tool kennt das Client-Secret.
+(function () {
+  var q = new URLSearchParams(location.search);
+  var state = q.get('state') || '';
+  var part = state.split('.')[1] || '';
+  var target = '';
+  try { target = atob(part.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((part.length + 3) % 4)); } catch (e) {}
+  if (!/^https?:\/\/[^\s"'<>]+$/.test(target)) {
+    document.getElementById('msg').textContent = 'Keine gültige Rücksprungadresse gefunden. Bitte im Tool neu koppeln.';
+    return;
+  }
+  location.replace(target.replace(/\/$/, '') + '/verbindungen/withings/callback' + location.search);
+})();
+</script>
+</body>
+</html>
